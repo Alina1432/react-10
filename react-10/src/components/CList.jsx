@@ -1,6 +1,6 @@
 import CItem from './CItem'
 
-export default function CList({contacts, onDelete}) {
+export default function CList({contacts, onDelete, onEdit}) {
   return (
     <ul>
       {contacts.map(contact => (
@@ -8,6 +8,7 @@ export default function CList({contacts, onDelete}) {
           key={contact.id}
           contact={contact}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </ul>
