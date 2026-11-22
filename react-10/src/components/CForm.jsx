@@ -1,25 +1,29 @@
-import {useState} from 'react'
-import {nanoid} from 'nanoid'
+import { useState, useEffect } from 'react'
+import { nanoid } from 'nanoid'
 
-export default function CForm({onAddContact}) {
+export default function CForm({onAddContact, selectedContact, editId}) {
   const [name, setName] = useState('')
   const [number, setNumber] = useState('')
+
+  useEffect(() => {
+    if (selectedContact) {
+      setName(selectedContact.name)
+      setNumber(selectedContact.number)
+    }
+  }, [selectedContact])
+
   const handleChange = (event) => {
     const { name, value } = event.target
 
-    if (name === 'name') {
-      setName(value)
-    }
-    if (name === 'number') {
-      setNumber(value)
-    }
+    if (name === 'name') setName(value)
+    if (name === 'number') setNumber(value)
   }
 
   const handleSubmit = (event) => {
     event.preventDefault()
 
     const newContact = {
-      id: nanoid(),
+      id: editId || nanoid(),
       name: name,
       number: number
     }
@@ -36,12 +40,10 @@ export default function CForm({onAddContact}) {
     <form onSubmit={handleSubmit}>
       <label>
         Name
-
         <input
           type="text"
           name="name"
-          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-          title="Name may contain only letters, apostrophe, dash and spaces."
+          pattern="^[a-zA-Zа-яА-Я]+([' \-][a-zA-Zа-яА-Я]+)*$"
           required
           value={name}
           onChange={handleChange}
@@ -50,18 +52,19 @@ export default function CForm({onAddContact}) {
 
       <label>
         Number
-
         <input
           type="tel"
           name="number"
-          pattern={"\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}"}
-          title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+          pattern="^[+]?[0-9. \x28\x29\x2D]+$"
           required
           value={number}
-          onChange={handleChange}/>
+          onChange={handleChange}
+        />
       </label>
 
-      <button type="submit">Add contact</button>
+      <button type="submit">
+        {editId ? 'Save' : 'Add contact'}
+      </button>
     </form>
   )
 }
