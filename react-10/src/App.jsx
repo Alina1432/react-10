@@ -1,4 +1,3 @@
-import './App.css'
 import { useState } from 'react'
 import styled from 'styled-components'
 import CForm from './components/CForm'
@@ -6,56 +5,57 @@ import CList from './components/CList'
 import Filter from './components/Filter'
 
 const Container = styled.div`
-  padding: 20px;
+  width: 400px;
+  margin: 30px auto;
+  font-family: Arial;
 `
 
 const Title = styled.h1`
-  font-size: 30px;
+  font-size: 28px;
 `
 
 const Subtitle = styled.h2`
-  font-size: 24px;
+  font-size: 22px;
 `
 
 const Form = styled.div`
-  form {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 
   label {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    display: block;
+    margin-bottom: 10px;
   }
 
   input {
-    padding: 6px;
+    display: block;
+    width: 95%;
+    padding: 7px;
+    margin-top: 5px;
   }
 
   button {
-    padding: 6px 12px;
+    margin: 5px;
+    padding: 6px 10px;
     cursor: pointer;
   }
 
   li {
     margin-bottom: 10px;
   }
-
-  li button {
-    margin-left: 10px;
-  }
 `
 
 export default function App() {
   const [contacts, setContacts] = useState([])
   const [filter, setFilter] = useState('')
+  const [editId, setEditId] = useState(null)
 
   const addContact = (contact) => {
     const contactExists = contacts.find(
-      item => item.name.toLowerCase() === contact.name.toLowerCase()
+      item =>
+        item.name.toLowerCase() === contact.name.toLowerCase() &&
+        item.id !== editId
     )
 
     if (contactExists) {
@@ -63,7 +63,15 @@ export default function App() {
       return false
     }
 
-    setContacts([...contacts, contact])
+    if (editId) {
+      setContacts(contacts.map(item =>
+        item.id === editId ? contact : item
+      ))
+      setEditId(null)
+    } else {
+      setContacts([...contacts, contact])
+    }
+
     return true
   }
 
@@ -71,29 +79,37 @@ export default function App() {
     setContacts(contacts.filter(contact => contact.id !== id))
   }
 
+  const editContact = (contact) => {
+    setEditId(contact.id)
+  }
+
   const visibleContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(filter.toLowerCase())
   )
+
+  const selectedContact = contacts.find(contact => contact.id === editId)
 
   return (
     <Container>
       <Title>Phonebook</Title>
 
       <Form>
-        <CForm onAddContact={addContact} />
+        <CForm
+          onAddContact={addContact}
+          selectedContact={selectedContact}
+          editId={editId}
+        />
       </Form>
 
       <Subtitle>Contacts</Subtitle>
 
       <Form>
-        <Filter
-          filter={filter}
-          onChangeFilter={setFilter}
-        />
+        <Filter filter={filter} onChangeFilter={setFilter} />
 
         <CList
           contacts={visibleContacts}
           onDelete={deleteContact}
+          onEdit={editContact}
         />
       </Form>
     </Container>
